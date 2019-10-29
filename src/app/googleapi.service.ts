@@ -12,8 +12,11 @@ this.google=google;
    }
 
    getgeocode(address:Address){
-    return this.httpclient.get("https://maps.googleapis.com/maps/api/geocode/json?address="+address.street+address.state+address.country+"&key=AIzaSyAPocyqGp7CTdUU1VhI42SyuROB1hnVNOc");
-   
+     if(!address.country){
+      return this.httpclient.get("https://maps.googleapis.com/maps/api/geocode/json?address="+address.street+address.city+address.state+address.country+"&key=AIzaSyAPocyqGp7CTdUU1VhI42SyuROB1hnVNOc");
+     }else{
+    return this.httpclient.get("https://maps.googleapis.com/maps/api/geocode/json?address="+address.street+address.country.name+address.city+address.state+"&key=AIzaSyAPocyqGp7CTdUU1VhI42SyuROB1hnVNOc");
+     }
 }
 
 getgoogle(){

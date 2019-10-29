@@ -1,10 +1,10 @@
-<div class="main">
-    <h1>
-      Welcome to Google Maps and Angular
-    </h1>
-    <div #mapWrapper id="map"></div>
-  </div>
+<div class="card mb-4">
+    <h6 class="card-header with-elements">
+        <div class="card-header-title">Where are Simplify Users ?</div>
+      </h6>
+      <div class="main">
+        <div #mapWrapper id="map" [ngStyle]="{'width':storeinf? '30%':'100%'}"></div>
+      </div>
+</div>
 
-  <div id="chart">
 
-  </div>

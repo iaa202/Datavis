@@ -5,6 +5,8 @@ import{Company} from '../Models/company';
 import{Location} from '../models/location';
 import{Address} from '../models/address';
 import {Geores, Geolocation} from '../models/geocoderes';
+import { Country } from '../Models/country';
+
 
 @Component({
   selector: 'app-home',
@@ -16,6 +18,8 @@ export class HomeComponent implements  AfterViewInit, OnInit {
   companys:Company[];
   loc:any;
   google:any;
+  markerlist=[];
+  storeinf=false;
 
   @ViewChild('mapWrapper', {static: false}) mapElement: ElementRef;
   constructor(private customerservice:CustomerdashboardService,private googleapi:GoogleapiService) {
@@ -23,13 +27,17 @@ export class HomeComponent implements  AfterViewInit, OnInit {
    }
 
   ngAfterViewInit() {
-    this.initializeMap();
+  // this.loadmap();
   }
 
   ngOnInit() {
     this.customerservice.getcustomers().subscribe(res=>{
-     this.companys=<Company[]>res
+      this.companys=<Company[]>res
+      this.loadmap();
+    });
 
+   /*  this.customerservice.getcustomers().subscribe(res=>{
+     this.companys=<Company[]>res
     this.loc = new Promise ((resolve,reject)=>{
      resolve(this.companys.map(data=>{
        data.locations.map(loca=>{
@@ -37,6 +45,7 @@ export class HomeComponent implements  AfterViewInit, OnInit {
           if((<Geores>res).status=="OK"){
            loca.latitude=(<Geores>res).results[0].geometry.location.lat;
            loca.longtitude=(<Geores>res).results[0].geometry.location.lng;
+           this.loclist.push(new Geolocation(loca.latitude,loca.longtitude));
           }
          
           })
@@ -48,8 +57,8 @@ export class HomeComponent implements  AfterViewInit, OnInit {
     },error=>{
 
     })
-    this.google.charts.load('current', {packages: ['corechart']});
-   this.google.charts.setOnLoadCallback(this.drawChart.bind(this));
+  this.google.charts.load('current', {packages: ['corechart']});
+  // this.google.charts.setOnLoadCallback(this.drawChart.bind(this)); */
 }
 
 drawChart(){
@@ -68,21 +77,69 @@ drawChart(){
 }
 
 
-getlocations(){
+/* getlocations(){
   Promise.all([this.loc]).then(val=>{
-    console.log(this.companys);
+   this.initializeMap();
+   
   })
- }
-  initializeMap() {
-    const lngLat = new google.maps.LatLng(6.5874964, 3.9886097);
+ } */
+  initializeMap(lat,lng) {
+    const coord = new this.google.maps.LatLng(lat,lng)
     const mapOptions: google.maps.MapOptions = {
-      center: lngLat,
-      zoom: 16,
+      center: coord,
+      zoom: 9,
       fullscreenControl: false,
       mapTypeControl: false,
       streetViewControl: false
+      
     };
     this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
+    //var marker = new this.google.maps.Marker({position:coord,map:this.map})
+
+    this.companys.map(data=>{
+      data.locations.map(loc=>{
+        //temp function
+        this.customerservice.getcountrys().subscribe(res=>{
+           res=(<Country[]>res).filter(add=>add.id===loc.address.countryID);
+          if((<Country[]>res).length>0){
+           loc.address.country=(<Country[]>res)[0]
+          }
+      //end of temp
+        this.googleapi.getgeocode(loc.address).subscribe(res=>{
+          if((<Geores>res).status=="OK"){
+            var cord= new this.google.maps.LatLng((<Geores>res).results[0].geometry.location.lat,(<Geores>res).results[0].geometry.location.lng)
+            var marker = new this.google.maps.Marker({position:cord,map:this.map,animation: this.google.maps.Animation.DROP})
+            var infowindow = new google.maps.InfoWindow({
+              content:data.name + ", "+ loc.name
+            });
+            marker.addListener('mouseover', function() {
+              infowindow.open(this.map, marker);
+            });
+            marker.addListener('mouseout', function() {
+              infowindow.close();
+          });
+          marker.addListener('click', (event)=> {
+            console.log(loc);
+            this.storeinf=true;
+      
+        });
+            this.markerlist.push(marker);
+          }
+          
+        })
+      })
+    })
+  })
+  }
+
+
+  loadmap(){
+   this.googleapi.getgeocode(this.companys[25].locations[0].address).subscribe(res=>{
+    if((<Geores>res).status=="OK"){
+      this.initializeMap((<Geores>res).results[0].geometry.location.lat,(<Geores>res).results[0].geometry.location.lng)
+   
+     }
+   })
   }
 
 }

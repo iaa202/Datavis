@@ -7,6 +7,7 @@ import{HttpClient, HttpHeaders} from '@angular/common/http';
 export class CustomerdashboardService {
 
   api="http://mercatordcr.azurewebsites.net/api/";
+ // api="https://simplifyapi.azurewebsites.net/api/";
 
   constructor(private httpclient:HttpClient) {
 
@@ -18,5 +19,9 @@ export class CustomerdashboardService {
    getlocations(id:number){
      return this.httpclient.get(this.api+"Location/GetByCompany/"+id);
 
+   }
+
+   getcountrys(){
+     return this.httpclient.get(this.api+"Country/Get");
    }
 }

@@ -8,8 +8,8 @@ export class Location {
  companyID:number;
  userCreated:number;
  userModified:number;
- longtitude:any;
- latitude:any;
+ longtitude:number;
+ latitude:number;
 
  constructor(name:string,phone:string,address:Address,companyid:number){
      this.name=name;

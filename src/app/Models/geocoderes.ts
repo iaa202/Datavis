@@ -14,4 +14,9 @@ export class Geometry{
 export class Geolocation{
     lat:any;
     lng:any;
+
+    constructor(lat,lng){
+this.lat=lat;
+this.lng=lng;
+    }
 }
