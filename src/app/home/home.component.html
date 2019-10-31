@@ -1,10 +1,126 @@
-<div class="card mb-4">
-    <h6 class="card-header with-elements">
-        <div class="card-header-title">Where are Simplify Users ?</div>
+<div class="row">
+  <div class="col-md-2">
+      
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="ml-2 text-center" style="color:white">
+                <div>Total Customers</div>
+                <div class="fa fa-shopping-cart display-5"></div>
+                <div class="text-large"><b>{{nofcustomers}}</b></div>
+              </div>
+            </div>
+        
+        </div>
+        <div class="card mb-4 shadow ml-2">
+            <div class="card-body ">
+              <div class="d-flex align-items-center">
+                <div class="fa fa-shopping-cart display-5"></div>
+                <div class="ml-3">
+                  <div class="text-muted">Total Locations</div>
+                  <div class="text-large">{{noflocations}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card mb-4 shadow ml-2">
+              <div class="card-body">
+                <div class="d-flex align-items-center">
+                  <div class="fa fa-shopping-cart display-5"></div>
+                  <div class="ml-3">
+                    <div class="text-muted">Total Users</div>
+                    <div class="text-large">{{nofusers}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+              <div class="card mb-4 shadow ml-2">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="fa fa-shopping-cart display-5"></div>
+              <div class="ml-3">
+                <div class="text-muted">Sales Volume</div>
+              <div class="text-large">{{nofsales}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4 shadow ml-2">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="fa fa-shopping-cart display-5"></div>
+                <div class="ml-3">
+                  <div class="text-muted">Sales Value</div>
+                  <div class="text-large">{{valofsales}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+       
+                      
+          
+  </div>
+  <div  class="col-md-10">
+  <div class="card mb-4 mr-2">
+    <h6 class="card-header with-elements" style="background-color:#154360; color:white">
+        <div class="card-header-title"><i *ngIf="storeinf" class="fas fa-arrow-left" (click)="resetmap()"></i> {{mapheader}}</div>
       </h6>
       <div class="main">
-        <div #mapWrapper id="map" [ngStyle]="{'width':storeinf? '30%':'100%'}"></div>
+          <div  *ngIf="storeinf" class="float-right" style="margin-right:25%">
+            <div class="row">
+              <div>
+                <div class="card mb-4 shadow mt-2">
+                    <div class="daily-sales ">
+                      <div class="align-items-center ml-3 mr-2">
+                          <div class="text-muted">Total Locations</div>  
+                          <div class="text-large">{{comploc}}</div>
+                      
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card mb-4 shadow ">
+                      <div class="daily-sales">
+                        <div class="align-items-center ml-3 mr-2">
+                            <div class="text-muted">Total Users</div>  
+                            <div class="text-large">{{compusers}}</div>
+                        
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card mb-4 shadow">
+                        <div class="daily-sales">
+                          <div class="align-items-center ml-3 mr-2">
+                              <div class="text-muted">Daily sales</div>  
+                              <div class="text-large">{{compsales}}</div>
+                          
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card mb-4 shadow">
+                          <div class="daily-sales">
+                            <div class="align-items-center ml-3 mr-2">
+                                <div class="text-muted">Daily Revenue</div>  
+                                <div class="text-large">{{compvalsales}}</div>
+                            
+                            </div>
+                          </div>
+                        </div>
+            </div>
+            <div  class="ml-2 mb-4" id="chart"> 
+              </div>
+               </div>
+              
+               </div>
+        <div #mapWrapper id="map" [ngStyle]="{'width':storeinf? '30%':'100%'}">    
+        </div>
+      
+       
+ 
       </div>
 </div>
+</div>
+
+</div>
+
+
 
 
