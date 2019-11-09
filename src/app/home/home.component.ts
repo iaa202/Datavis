@@ -6,8 +6,8 @@ import{Location} from '../models/location';
 import{Address} from '../models/address';
 import {Geores, Geolocation} from '../models/geocoderes';
 import { Country } from '../Models/country';
-import { getHeapStatistics } from 'v8';
 import { Report } from '../Models/report';
+declare var MarkerClusterer;
 
 
 @Component({
@@ -18,6 +18,7 @@ import { Report } from '../Models/report';
 export class HomeComponent implements  AfterViewInit, OnInit {
   map: google.maps.Map;
   companys:Company[];
+  MarkerClusterer:any;
   loc:any;
   google:any;
   markerlist=[];
@@ -45,16 +46,21 @@ compvalsales=0;
   }
 
   ngOnInit() {
+    this.MarkerClusterer=MarkerClusterer;
     this.customerservice.getcustomers().subscribe(res=>{
       this.companys=<Company[]>res
       this.nofcustomers=this.companys.length;
-    //  this.getstats();
+      this.getstats();
+      this.getsalesvolandval();
       this.loadmap();
+     
     
      
     });
 
   this.google.charts.load('current', {packages: ['corechart']});
+  this.google.charts.load('current', {'packages':['gauge']});
+  this.google.charts.load('current', {'packages':['bar']});
  // this.google.charts.setOnLoadCallback(this.drawChart.bind(this)); 
  
 }
@@ -76,6 +82,11 @@ getstats(){
   //   })
   // })
   
+ 
+}
+
+getsalesvolandval(){
+  
   this.companys.map(data=>{
     this.customerservice.getsalesvolval(data.id).subscribe(res=>{
       (<Report[]>res).map(rep=>{
@@ -84,7 +95,6 @@ getstats(){
       })
     })
   })
- 
 }
 
 drawChart(dat:Company){
@@ -108,12 +118,53 @@ drawChart(dat:Company){
         is3D: true,
       };
       chart.draw(data, options);
+      this.drawguagechart() 
+      this.drawbar();
   
-  })
- 
-
-    
+  }) 
+   
 }
+
+drawguagechart(){
+  var data = this.google.visualization.arrayToDataTable([
+    ['Label', 'Value'],
+    ['Activity', 80]
+  ]);
+  var options = {
+    redFrom: 0, redTo: 50,
+    yellowFrom:50, yellowTo: 80,
+    minorTicks: 5
+  };
+  var chart = new this.google.visualization.Gauge(document.getElementById('guage'))
+chart.draw(data,options);
+}
+
+drawbar() {
+  var data = this.google.visualization.arrayToDataTable([
+    ['Day', 'Sales'],
+    ['Sun', 1000],
+    ['Mon', 1170],
+    ['Tue', 660],
+    ['Wed', 1030],
+    ['Thurs', 500],
+    ['Frid', 1200],
+    ['Sat', 1030],
+
+  ]);
+
+  var options = {
+    chart: {
+      title: 'Weekly Sales',
+     // subtitle: 'Sales, Expenses, and Profit: 2014-2017',
+    },
+    bars: 'horizontal' // Required for Material Bar Charts.
+  };
+
+  var chart = new this.google.charts.Bar(document.getElementById('bar'));
+
+  chart.draw(data, this.google.charts.Bar.convertOptions(options));
+}
+
 
 
   initializeMap(lat,lng) {
@@ -127,7 +178,15 @@ drawChart(dat:Company){
       
     };
     this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
-    //var marker = new this.google.maps.Marker({position:coord,map:this.map})
+    // this.map.addListener('zoom_changed',event=>{
+    //   if(this.markerlist.length>0){
+    //     var markerCluster = new this.MarkerClusterer(this.map, this.markerlist,
+    //       {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+
+    //   }
+    // })
+    
+  
 
     this.companys.map(data=>{
       data.locations.map(loc=>{
@@ -168,6 +227,10 @@ drawChart(dat:Company){
             this.map.setZoom(12);
         });
             this.markerlist.push(marker);
+              // var markerCluster = new this.MarkerClusterer(this.map, this.markerlist,
+              //   {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+         
+            
           }
           
         })
