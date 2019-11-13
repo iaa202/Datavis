@@ -29,6 +29,7 @@ export class HomeComponent implements  AfterViewInit, OnInit {
   nofusers=0;
   nofsales=0;
   valofsales=0;
+  height:number;
 comploc=0;
 compusers=0;
 compsales=0;
@@ -46,12 +47,10 @@ compvalsales=0;
   }
 
   ngOnInit() {
+    this.height=window.innerHeight/2.5;
     this.MarkerClusterer=MarkerClusterer;
     this.customerservice.getcustomers().subscribe(res=>{
       this.companys=<Company[]>res
-      this.nofcustomers=this.companys.length;
-      this.getstats();
-      this.getsalesvolandval();
       this.loadmap();
      
     
@@ -64,38 +63,8 @@ compvalsales=0;
  // this.google.charts.setOnLoadCallback(this.drawChart.bind(this)); 
  
 }
-//problem method
-getstats(){
-  this.companys.map(data=>{
-   data.locations.map(loc=>{
-     this.noflocations=this.noflocations+1;
-   })
-   this.customerservice.getusers(data.id).subscribe(res=>{
-    this.nofusers=this.nofusers+(<Company[]>res).length;
-  })
-  })
 
-  // //need set API for these
-  // this.companys.map(data=>{
-  //   this.customerservice.getusers(data.id).subscribe(res=>{
-  //     this.nofusers=this.nofusers+(<Company[]>res).length;
-  //   })
-  // })
-  
- 
-}
 
-getsalesvolandval(){
-  
-  this.companys.map(data=>{
-    this.customerservice.getsalesvolval(data.id).subscribe(res=>{
-      (<Report[]>res).map(rep=>{
-       this.nofsales=this.nofsales+ rep.vol;
-       this.valofsales=this.valofsales+rep.val;
-      })
-    })
-  })
-}
 
 drawChart(dat:Company){
 
