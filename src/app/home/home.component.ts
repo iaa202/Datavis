@@ -3,7 +3,7 @@ import {CustomerdashboardService} from '../customerdashboard.service';
 import{GoogleapiService} from '../googleapi.service';
 import{Company} from '../Models/company';
 import { formatDate } from '@angular/common';
-import {Geores} from '../models/geocoderes';
+import {Geores} from '../Models/geocoderes';
 import { Country } from '../Models/country';
 import { Report } from '../Models/report';
 declare var MarkerClusterer;
