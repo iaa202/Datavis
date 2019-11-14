@@ -1,45 +1,55 @@
- <div class="card-body" [ngStyle]="{'height':height+'px'}">
-      <div class="d-flex align-items-center">
-        <div class="ml-4 text-center" style="color:white">
-          <div>Total Customers</div>
-          <div class="fa fa-user display-5"></div>
-          <div class="text-large"><b>{{nofcustomers}}</b></div>
+<div class="row" style="background-color:#154360;">
+    <div class="col-sm-6 col-xl-2">
+    <div class="card mb-4" style="background-color:#154360; border:none">
+          <div class="card-body align-items-center text-center" style="color:white">
+              <div>Total Customers</div>
+              <div class="fa fa-user display-5"></div>
+            <div class="text-large"><b>{{nofcustomers}}</b></div>
+          </div>
         </div>
-      </div>
-  </div>
-  <div class="card-body" [ngStyle]="{'height':height+'px'}">
-      <div class="d-flex align-items-center">
-        <div class="ml-4 text-center" style="color:white">
-          <div>Total Locations</div>
-          <div class="fas fa-store-alt display-5"></div>
-          <div class="text-large"><b>{{noflocations}}</b></div>
+    </div>
+
+    <div class="col-sm-6 col-xl-2">
+        <div class="card mb-4" style="background-color:#154360; border:none">
+              <div class="card-body align-items-center text-center" style="color:white">
+                  <div>Total Locations</div>
+                  <div class="fas fa-store-alt display-5"></div>
+                  <div class="text-large"><b>{{noflocations}}</b></div>
+              </div>
+            </div>
         </div>
-      </div>
-  </div>
-  <div class="card-body" [ngStyle]="{'height':height+'px'}">
-      <div class="d-flex align-items-center">
-        <div class="ml-4 text-center" style="color:white">
-          <div>Total Users</div>
-          <div class="fas fa-users display-5"></div>
-          <div class="text-large"><b>{{nofusers}}</b></div>
-        </div>
-      </div>
-  </div>
-  <div class="card-body" [ngStyle]="{'height':height+'px'}">
-      <div class="d-flex align-items-center">
-        <div class="ml-4 text-center" style="color:white">
-          <div>Sales Volume</div>
-          <div class="fa fa-shopping-cart display-5"></div>
-          <div class="text-large"><b>{{nofsales}}</b></div>
-        </div>
-      </div>
-  </div>
-   <div class="card-body">
-      <div class="d-flex align-items-center">
-        <div class="ml-4 text-center" style="color:white">
-          <div>Sales Value</div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card mb-4" style="background-color:#154360; border:none">
+                  <div class="card-body align-items-center text-center" style="color:white">
+                      <div>Total Users</div>
+                      <div class="fas fa-users display-5"></div>
+                      <div class="text-large"><b>{{nofusers}}</b></div>
+                  </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-2">
+                <div class="card mb-4" style="background-color:#154360; border:none">
+                      <div class="card-body align-items-center text-center" style="color:white">
+                          <div>Sales Volume</div>
+                          <div class="fa fa-shopping-cart display-5"></div>
+                          <div class="text-large"><b>{{nofsales}}</b></div>
+                      </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-2">
+                    <div class="card mb-4" style="background-color:#154360; border:none">
+                          <div class="card-body align-items-center text-center" style="color:white">
+                              <div>Sales Value</div>
           <div class="fa fa-money display-5"></div>
-          <div class="text-large"><b>{{valofsales}}</b></div>
-        </div>
-      </div>
-  </div>      
+          <div class="text-large"><b>{{formatPrice(valofsales)}}</b></div>
+                          </div>
+                        </div>
+                    </div>
+    
+   
+    
+    </div>
+   

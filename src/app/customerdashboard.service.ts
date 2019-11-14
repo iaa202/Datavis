@@ -28,6 +28,9 @@ export class CustomerdashboardService {
 return this.httpclient.get(this.api+"User/GetByCompany/"+id);
    }
 
+   getsalesvolval2(id,start,end){
+    return this.httpclient.get(this.api+"Report/GetSaleSummary/"+id+"/0/" +start+ "/" + end);
+   }
    getsalesvolval(id){
     return this.httpclient.get(this.api+"Report/GetSaleSummary/"+id+"/0/0/0");
    }

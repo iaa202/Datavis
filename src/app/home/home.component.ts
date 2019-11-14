@@ -4,6 +4,7 @@ import{GoogleapiService} from '../googleapi.service';
 import{Company} from '../Models/company';
 import{Location} from '../models/location';
 import{Address} from '../models/address';
+import { formatDate } from '@angular/common';
 import {Geores, Geolocation} from '../models/geocoderes';
 import { Country } from '../Models/country';
 import { Report } from '../Models/report';
@@ -16,6 +17,10 @@ declare var MarkerClusterer;
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements  AfterViewInit, OnInit {
+  today:Date=new Date();
+  tod=Date.now();
+  dayweek=1;
+  guagedata=0;
   map: google.maps.Map;
   companys:Company[];
   MarkerClusterer:any;
@@ -30,10 +35,12 @@ export class HomeComponent implements  AfterViewInit, OnInit {
   nofsales=0;
   valofsales=0;
   height:number;
+  height2:number;
 comploc=0;
 compusers=0;
 compsales=0;
 compvalsales=0;
+piedata:Report[]=[]
 
 
 
@@ -47,7 +54,8 @@ compvalsales=0;
   }
 
   ngOnInit() {
-    this.height=window.innerHeight/2.5;
+    this.height=window.innerHeight/3;
+    this.height2=this.height/4;
     this.MarkerClusterer=MarkerClusterer;
     this.customerservice.getcustomers().subscribe(res=>{
       this.companys=<Company[]>res
@@ -67,14 +75,18 @@ compvalsales=0;
 
 
 drawChart(dat:Company){
-
-  this.customerservice.getsalesvolval(dat.id).subscribe(res=>{
+ var t=Date.now();
+ var lw= t-(86400000*6)
+  this.customerservice.getsalesvolval2(dat.id,formatDate(lw,'dd-MM-yyyy','en'),formatDate(t,'dd-MM-yyyy','en')).subscribe(res=>{
+   this.piedata=<Report[]>res;
     var data = new this.google.visualization.DataTable();
     data.addColumn('string', 'Element');
     data.addColumn('number', 'Percentage');
+   
+   
     (<Report[]>res).map(report=>{
       data.addRows([
-        [report.locationName,report.val]
+        [report.locationName,report.vol]
       ])
     })
 
@@ -83,29 +95,69 @@ drawChart(dat:Company){
       // Instantiate and draw the chart.
       var chart = new this.google.visualization.PieChart(document.getElementById('chart'));
       var options = {
-        title: 'Sales By Location',
+        title: 'Weekly Sales volume By Location',
         is3D: true,
       };
       chart.draw(data, options);
-      this.drawguagechart() 
+      this.google.visualization.events.addListener(chart,'onmouseover', (event)=> {
+        this.handleselect(event)
+      
+      })
+      this.google.visualization.events.addListener(chart,'onmouseout', (event)=> {
+       this.map.setZoom(12);
+      
+      })
+      this.drawguagechart(dat) 
       this.drawbar();
   
   }) 
    
 }
 
-drawguagechart(){
-  var data = this.google.visualization.arrayToDataTable([
-    ['Label', 'Value'],
-    ['Activity', 80]
-  ]);
-  var options = {
-    redFrom: 0, redTo: 50,
-    yellowFrom:50, yellowTo: 80,
-    minorTicks: 5
-  };
-  var chart = new this.google.visualization.Gauge(document.getElementById('guage'))
-chart.draw(data,options);
+
+handleselect(e){
+console.log(this.piedata[e["row"]]);
+var sublist= this.markerlist.filter(m=>m.map!=null);
+sublist.map(m=>{
+  if((<String>m.title).includes(this.piedata[e["row"]].locationName)){
+    this.map.setCenter(m.position);
+    this.map.setZoom(20);
+  }
+
+})
+}
+
+
+
+
+drawguagechart(comp:Company){
+  this.customerservice.getsalesvolval2(comp.id,formatDate(this.tod,'dd-MM-yyyy','en'),formatDate(this.tod,'dd-MM-yyyy','en')).subscribe(res=>{
+   if((<Report[]>res).length>0){
+     this.guagedata++;
+     console.log(this.guagedata);
+   }
+    this.tod=this.tod-86400000
+    this.dayweek++;
+    if(this.dayweek<=7){
+      this.drawguagechart(comp);
+    }else{
+      console.log(this.guagedata);
+     this.guagedata=(this.guagedata/7)*100
+      var data = this.google.visualization.arrayToDataTable([
+        ['Label', 'Value'],
+        ['Activity', this.guagedata]
+      ]);
+      var options = {
+        redFrom: 0, redTo: 50,
+        yellowFrom:50, yellowTo: 80,
+        minorTicks: 5
+      };
+      var chart = new this.google.visualization.Gauge(document.getElementById('guage'))
+    chart.draw(data,options);
+    }
+  })
+  
+  
 }
 
 drawbar() {
@@ -169,7 +221,7 @@ drawbar() {
         this.googleapi.getgeocode(loc.address).subscribe(res=>{
           if((<Geores>res).status=="OK"){
             var cord= new this.google.maps.LatLng((<Geores>res).results[0].geometry.location.lat,(<Geores>res).results[0].geometry.location.lng)
-            var marker = new this.google.maps.Marker({position:cord,map:this.map,animation: this.google.maps.Animation.DROP,title:data.name})
+            var marker = new this.google.maps.Marker({position:cord,map:this.map,animation: this.google.maps.Animation.DROP,title:data.name+loc.name})
             var infowindow = new google.maps.InfoWindow({
               content:data.name + ", "+ loc.name
             });
@@ -185,7 +237,7 @@ drawbar() {
             this.drawChart(data);
             this.showcomp(data);
             this.markerlist.map(mark=>{
-              if(mark.title!=data.name){
+              if(!(<String>mark.title).includes(data.name)){
                 mark.setMap(null);
               }else{
               this.map.setCenter(mark.position);
@@ -226,6 +278,9 @@ drawbar() {
 
   resetmap(){
     this.storeinf=false;
+    this.guagedata=0;
+    this.dayweek=1;
+    this.tod=Date.now();
     this.comploc=0;
     this.compusers=0;
     this.compsales=0;

@@ -1,10 +1,6 @@
-<div class="row">
-  <div class="col-md-2" style="background-color: #154360;">
-      <app-sideinfo ></app-sideinfo>
-  </div>
-  <div class="col-md-10" >
-    <div class="card mb-4">
-      <h6 class="card-header with-elements" style="background-color:#154360; color:white">
+ <app-sideinfo ></app-sideinfo>
+    <div class="card ml-2 mr-2 mt-2">
+      <h6 class="card-header with-elements">
         <div class="card-header-title"><i *ngIf="storeinf" class="fas fa-arrow-left" (click)="resetmap()"></i> {{mapheader}}</div>
       </h6>
       <div class="row">
@@ -54,90 +50,22 @@
         </div>
 
       </div>
-      <div class="col-md-3">
+      <div class="col-md-4">
         <div  class="ml-2" id="chart"> 
         </div>
-        <div  class="text-center" id="guage"> 
+        <div  class="text-center align-items-center" id="guage"> 
         </div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-4">
         <div id="bar">
 
         </div>
       </div>
    
     </div>
-  </div>
- <!--  <div  class="col-md-10">
-  <div class="card mb-4 mr-2">
-    <h6 class="card-header with-elements" style="background-color:#154360; color:white">
-        <div class="card-header-title"><i *ngIf="storeinf" class="fas fa-arrow-left" (click)="resetmap()"></i> {{mapheader}}</div>
-      </h6>
-      <div class="main">
-          <div  *ngIf="storeinf" class="float-right" style="margin-right:0%">
-            <div class="row">
-              <div>
-                <div class="card mb-4 shadow mt-2">
-                    <div class="daily-sales ">
-                      <div class="align-items-center ml-3 mr-2">
-                          <div class="text-muted">Total Locations</div>  
-                        <div class="text-large">{{comploc}}</div> 
-                      
-                      </div>
-                    </div>
-                  </div>
-                  <div class="card mb-4 shadow ">
-                      <div class="daily-sales">
-                        <div class="align-items-center ml-3 mr-2">
-                            <div class="text-muted">Total Users</div>  
-                            <div class="text-large">{{compusers}}</div>
-                        
-                        </div>
-                      </div>
-                    </div>
-                    <div class="card mb-4 shadow">
-                        <div class="daily-sales">
-                          <div class="align-items-center ml-3 mr-2">
-                              <div class="text-muted">Daily sales</div>  
-                              <div class="text-large">{{compsales}}</div>
-                          
-                          </div>
-                        </div>
-                      </div>
-                      <div class="card mb-4 shadow">
-                          <div class="daily-sales">
-                            <div class="align-items-center ml-3 mr-2">
-                                <div class="text-muted">Daily Revenue</div>  
-                                <div class="text-large">{{compvalsales}}</div>
-                            
-                            </div>
-                          </div>
-                        </div>
-            </div>
-            <div>
-                <div  class="ml-2" id="chart"> 
-                  </div>
-                  <div  class="text-center" id="guage"> 
-                    </div>
-            </div>
-              <div id="bar">
 
-              </div>
-            
-               </div>
-              
-               </div>
-        <div #mapWrapper id="map" [ngStyle]="{'width':storeinf? '30%':'100%'}">    
-        </div>
-  
-      
-       
- 
-      </div>
-</div>
-</div> -->
 
-</div>
+
 
 
 

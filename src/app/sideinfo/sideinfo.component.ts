@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CustomerdashboardService } from '../customerdashboard.service';
 import { Company } from '../Models/company';
 import { Report } from '../Models/report';
-//import * as numeral from 'numeral';
+import * as numeral from 'numeral';
 
 @Component({
   selector: 'app-sideinfo',
@@ -33,7 +33,7 @@ compvalsales=0;
       this.companys=<Company[]>res
       this.nofcustomers=this.companys.length;
       this.getstats();
-      this.getsalesvolandval();
+    this.getsalesvolandval();
       
      
     
@@ -70,9 +70,9 @@ getsalesvolandval(){
   })
 }
 
-//formatPrice(price, dropDecimals = false) {
-//  return numeral(price).format(dropDecimals ? '0,0' : '0,0.00');
-//}
+formatPrice(price, dropDecimals = false) {
+  return numeral(price).format(dropDecimals ? '0,0' : '0,0.00');
+}
 
 
 }

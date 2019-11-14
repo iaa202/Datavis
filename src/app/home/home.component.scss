@@ -1,7 +1,7 @@
 
 #chart {
 height:200px;
-width:300px;
+width:100%;
 }
 
 #bar {
@@ -11,17 +11,17 @@ width:300px;
     }
 #guage {
     height:100px;
-    width:210px;
+    width:100%;
     margin-left:70px;
     }
 
 #map {
-   // height: 300px; /* like this */
+   
     width:100%;
     
 }
 
 .daily-sales {
     border-left: 5px solid #8FB9E1;
-    height:50px;
+  
 }
