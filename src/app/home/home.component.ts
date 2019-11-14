@@ -2,10 +2,8 @@ import { Component,AfterViewInit, ViewChild, ElementRef, OnInit } from '@angular
 import {CustomerdashboardService} from '../customerdashboard.service';
 import{GoogleapiService} from '../googleapi.service';
 import{Company} from '../Models/company';
-import{Location} from '../models/location';
-import{Address} from '../models/address';
 import { formatDate } from '@angular/common';
-import {Geores, Geolocation} from '../models/geocoderes';
+import {Geores} from '../models/geocoderes';
 import { Country } from '../Models/country';
 import { Report } from '../Models/report';
 declare var MarkerClusterer;
