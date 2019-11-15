@@ -6,6 +6,7 @@ import { formatDate } from '@angular/common';
 import {Geores} from '../Models/geocoderes';
 import { Country } from '../Models/country';
 import { Report } from '../Models/report';
+import { VirtualTimeScheduler } from 'rxjs';
 declare var MarkerClusterer;
 
 
@@ -17,7 +18,9 @@ declare var MarkerClusterer;
 export class HomeComponent implements  AfterViewInit, OnInit {
   today:Date=new Date();
   tod=Date.now();
+  tod2=Date.now();
   dayweek=1;
+  day;
   guagedata=0;
   map: google.maps.Map;
   companys:Company[];
@@ -39,6 +42,7 @@ compusers=0;
 compsales=0;
 compvalsales=0;
 piedata:Report[]=[]
+bardata=[];
 
 
 
@@ -52,12 +56,16 @@ piedata:Report[]=[]
   }
 
   ngOnInit() {
+   
     this.height=window.innerHeight/3;
     this.height2=this.height/4;
     this.MarkerClusterer=MarkerClusterer;
     this.customerservice.getcustomers().subscribe(res=>{
       this.companys=<Company[]>res
       this.loadmap();
+      this.drawdonut();
+      this.drawcombo();
+      this.drawtable();
      
     
      
@@ -66,6 +74,7 @@ piedata:Report[]=[]
   this.google.charts.load('current', {packages: ['corechart']});
   this.google.charts.load('current', {'packages':['gauge']});
   this.google.charts.load('current', {'packages':['bar']});
+  this.google.charts.load('current', {'packages':['table']});
  // this.google.charts.setOnLoadCallback(this.drawChart.bind(this)); 
  
 }
@@ -106,15 +115,21 @@ drawChart(dat:Company){
       
       })
       this.drawguagechart(dat) 
-      this.drawbar();
+       this.day=this.today.getDay();
+       console.log(this.day);
+      this.tod2=Date.now();
+      this.drawbar(dat);
   
   }) 
    
 }
 
 
+
+
+
 handleselect(e){
-console.log(this.piedata[e["row"]]);
+
 var sublist= this.markerlist.filter(m=>m.map!=null);
 sublist.map(m=>{
   if((<String>m.title).includes(this.piedata[e["row"]].locationName)){
@@ -132,14 +147,14 @@ drawguagechart(comp:Company){
   this.customerservice.getsalesvolval2(comp.id,formatDate(this.tod,'dd-MM-yyyy','en'),formatDate(this.tod,'dd-MM-yyyy','en')).subscribe(res=>{
    if((<Report[]>res).length>0){
      this.guagedata++;
-     console.log(this.guagedata);
+  
    }
     this.tod=this.tod-86400000
     this.dayweek++;
     if(this.dayweek<=7){
       this.drawguagechart(comp);
     }else{
-      console.log(this.guagedata);
+      
      this.guagedata=(this.guagedata/7)*100
       var data = this.google.visualization.arrayToDataTable([
         ['Label', 'Value'],
@@ -158,31 +173,96 @@ drawguagechart(comp:Company){
   
 }
 
-drawbar() {
-  var data = this.google.visualization.arrayToDataTable([
-    ['Day', 'Sales'],
-    ['Sun', 1000],
-    ['Mon', 1170],
-    ['Tue', 660],
-    ['Wed', 1030],
-    ['Thurs', 500],
-    ['Frid', 1200],
-    ['Sat', 1030],
-
+drawbar(comp:Company) {
+   if(this.day===0){
+    this.day=7;
+  }
+ var day = this.getday(this.day);
+ console.log(day);
+  this.customerservice.getsalesvolval2(comp.id,formatDate(this.tod2,'dd-MM-yyyy','en'),formatDate(this.tod2,'dd-MM-yyyy','en')).subscribe(async data=>{
+//   // this.bardata.({name:day,value:this.calculatetotal(<Report[]>data)});
+console.log(data);
+   this.bardata.push(
+    [day,this.calculatetotal(<Report[]>data)]
+  )
+   console.log(this.bardata);
+if(this.bardata.length===7){
+  var barchart= this.google.visualization.arrayToDataTable([
+    ['Sales', 'Value'],
+      this.bardata[0],
+      this.bardata[1],
+      this.bardata[2],
+      this.bardata[3],
+      this.bardata[4],
+      this.bardata[5],
+      this.bardata[6]
   ]);
-
   var options = {
-    chart: {
-      title: 'Weekly Sales',
-     // subtitle: 'Sales, Expenses, and Profit: 2014-2017',
-    },
-    bars: 'horizontal' // Required for Material Bar Charts.
-  };
-
-  var chart = new this.google.charts.Bar(document.getElementById('bar'));
-
-  chart.draw(data, this.google.charts.Bar.convertOptions(options));
+          chart: {
+             title: 'Weekly Sales Value',
+           
+           },
+          bars: 'horizontal' // Required for Material Bar Charts.
+        };
+      
+        var chart = new this.google.charts.Bar(document.getElementById('bar'));
+      
+        chart.draw(barchart, this.google.charts.Bar.convertOptions(options));
+}else{
+  this.day=this.day-1;
+  this.tod2=this.tod2-86400000;
+  this.drawbar(comp);
 }
+   });
+
+//   if(this.bardata.length===7){
+  
+//     var options = {
+//       chart: {
+//         title: 'Weekly Sales',
+//        // subtitle: 'Sales, Expenses, and Profit: 2014-2017',
+//       },
+//       bars: 'horizontal' // Required for Material Bar Charts.
+//     };
+  
+//     var chart = new this.google.charts.Bar(document.getElementById('bar'));
+  
+//     chart.draw(dat, this.google.charts.Bar.convertOptions(options));
+//   }else{
+//     this.tod2=this.tod2-86400000;
+//     this.day=this.day-1;
+//     this.drawbar(comp)
+//   }
+// },error=>{
+// return
+// })
+  
+
+  
+}
+
+getday(day:number):string{
+  if(day===1){
+    return "Mon"
+  }else if(day===2){
+    return "Tue"
+  }else if(day===3){
+    return "Wed"
+  }else if(day===4){
+    return "Thurs"
+  }else if(day===5){
+    return "Frid"
+  }else if(day===6){
+    return "Sat"
+  }else if(day===7){
+    return "Sun"
+  }
+  }
+  calculatetotal(data:Report[]){
+  var total=0;
+  data.map((d)=>{total=total+d.val})
+  return total;
+  }
 
 
 
@@ -278,6 +358,9 @@ drawbar() {
     this.storeinf=false;
     this.guagedata=0;
     this.dayweek=1;
+    this.bardata=[];
+    this.tod2=Date.now();
+    this.day=this.today.getDay();
     this.tod=Date.now();
     this.comploc=0;
     this.compusers=0;
@@ -301,4 +384,69 @@ drawbar() {
    })
   }
 
+  drawdonut(){
+    var data = this.google.visualization.arrayToDataTable([
+      ['Task', 'Hours per Day'],
+      ['Fashion/Boutique',     11],
+      ['Restaurant',      2],
+      ['Laundry',  2],
+      ['Salon/Spa', 2],
+      ['Supermarket',    7]
+    ]);
+
+    var options = {
+      title: 'Customers By Sector',
+      pieHole: 0.4,
+    };
+
+    var chart = new this.google.visualization.PieChart(document.getElementById('donut'));
+    chart.draw(data, options);
+  }
+
+  drawcombo(){
+    var data = this.google.visualization.arrayToDataTable([
+      ['Day', 'SalesVol', 'SalesVal'],
+      ['Mon',  50,      1000,                       ],
+      ['Tue',  200,      2000,                      ],
+      ['Wed',  120,      5400,                      ],
+      ['Thurs',  0,      0,                       ],
+      ['Frid',  500,      1000,                    ],
+      ['Sat',  300,      5400,                   ],
+      ['Sun',  100,      500,                     ],
+    ]);
+
+    var options = {
+      title : 'Weekly Sales Volume and Value',
+      vAxis: {title: 'Sales'},
+      hAxis: {title: 'Day'},
+      seriesType: 'bars',
+      series: {1: {type: 'line'}}        };
+
+    var chart = new this.google.visualization.ComboChart(document.getElementById('combo'));
+    chart.draw(data, options);
+  }
+
+
+  drawtable(){
+    var data = new this.google.visualization.DataTable();
+    data.addColumn('string', 'Company');
+    data.addColumn('string', 'Location');
+    data.addColumn('string', 'Date');
+    data.addColumn('number', 'Sales Val');
+    data.addRows([
+      ['Marsden', 'HQ','11/14/2019 12:00pm',30000],
+      ['Bola Wears', 'HQ','11/14/2019 11:30am',400],
+      ['Marsden', 'LEKKI','11/14/2019 11:00am ',20000],
+      ['Wafii Pot', 'HQ','11/14/2019 11:00am ',1000],
+      ['Marsden', 'HQ','11/14/2019 9:00am ',20000],
+      
+    ]);
+
+    var table = new this.google.visualization.Table(document.getElementById('table'));
+
+  
+    table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
+  }
+
 }
+
