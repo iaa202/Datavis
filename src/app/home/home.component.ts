@@ -1,4 +1,4 @@
-import { Component,AfterViewInit, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component,AfterViewInit, ViewChild, ElementRef, OnInit, ɵConsole } from '@angular/core';
 import {CustomerdashboardService} from '../customerdashboard.service';
 import{GoogleapiService} from '../googleapi.service';
 import{Company} from '../Models/company';
@@ -6,7 +6,10 @@ import { formatDate } from '@angular/common';
 import {Geores} from '../Models/geocoderes';
 import { Country } from '../Models/country';
 import { Report } from '../Models/report';
+import * as numeral from 'numeral';
 import { VirtualTimeScheduler } from 'rxjs';
+import { Saleshistory } from '../Models/saleshistory';
+import { SideinfoComponent } from '../sideinfo/sideinfo.component';
 declare var MarkerClusterer;
 
 
@@ -42,6 +45,7 @@ compusers=0;
 compsales=0;
 compvalsales=0;
 piedata:Report[]=[]
+tabledata:Saleshistory[]=[];
 bardata=[];
 
 
@@ -79,7 +83,9 @@ bardata=[];
  
 }
 
-
+formatPrice(price, dropDecimals = false) {
+  return numeral(price).format(dropDecimals ? '0,0' : '0,0.00');
+}
 
 drawChart(dat:Company){
  var t=Date.now();
@@ -215,27 +221,6 @@ if(this.bardata.length===7){
 }
    });
 
-//   if(this.bardata.length===7){
-  
-//     var options = {
-//       chart: {
-//         title: 'Weekly Sales',
-//        // subtitle: 'Sales, Expenses, and Profit: 2014-2017',
-//       },
-//       bars: 'horizontal' // Required for Material Bar Charts.
-//     };
-  
-//     var chart = new this.google.charts.Bar(document.getElementById('bar'));
-  
-//     chart.draw(dat, this.google.charts.Bar.convertOptions(options));
-//   }else{
-//     this.tod2=this.tod2-86400000;
-//     this.day=this.day-1;
-//     this.drawbar(comp)
-//   }
-// },error=>{
-// return
-// })
   
 
   
@@ -277,13 +262,13 @@ getday(day:number):string{
       
     };
     this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
-    // this.map.addListener('zoom_changed',event=>{
-    //   if(this.markerlist.length>0){
+    //  this.map.addListener('zoom_changed',event=>{
+    //  if(this.markerlist.length>0){
     //     var markerCluster = new this.MarkerClusterer(this.map, this.markerlist,
-    //       {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+    //      {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
-    //   }
-    // })
+      // }
+    //  })
     
   
 
@@ -327,7 +312,7 @@ getday(day:number):string{
         });
             this.markerlist.push(marker);
               // var markerCluster = new this.MarkerClusterer(this.map, this.markerlist,
-              //   {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+               //  {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
          
             
           }
@@ -368,7 +353,6 @@ getday(day:number):string{
     this.compvalsales=0;
    this.markerlist.map(mark=>{
      mark.setMap(this.map);
-    // mark.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
     mark.setIcon(null);
    })
    this.mapheader="Where are Simplify Users?"
@@ -383,6 +367,7 @@ getday(day:number):string{
      }
    })
   }
+
 
   drawdonut(){
     var data = this.google.visualization.arrayToDataTable([
@@ -428,25 +413,77 @@ getday(day:number):string{
 
 
   drawtable(){
-    var data = new this.google.visualization.DataTable();
-    data.addColumn('string', 'Company');
-    data.addColumn('string', 'Location');
-    data.addColumn('string', 'Date');
-    data.addColumn('number', 'Sales Val');
-    data.addRows([
-      ['Marsden', 'HQ','11/14/2019 12:00pm',30000],
-      ['Bola Wears', 'HQ','11/14/2019 11:30am',400],
-      ['Marsden', 'LEKKI','11/14/2019 11:00am ',20000],
-      ['Wafii Pot', 'HQ','11/14/2019 11:00am ',1000],
-      ['Marsden', 'HQ','11/14/2019 9:00am ',20000],
-      
-    ]);
+
+    var count=0;
+    this.companys.map(comp=>{
+      this.customerservice.getcurrentsales(comp.id).subscribe(data=>{
+        if((<Saleshistory[]>data).length!=0){
+   (<Saleshistory[]>data).map(sale=>{this.tabledata.push(sale)})
+        }
+   count++;
+     if(count===this.companys.length){
+     console.log(this.tabledata);
+  //need to sort array by date;
+  this.tabledata=this.tabledata.sort((sale1,sale2)=>{
+    var time =new Date(sale1.salesDate).getHours();
+    var time2= new Date(sale2.salesDate).getHours();
+    console.log(time,time2)
+  if(time<time2){
+    return -1;
+  }else if(time==time2){
+if(new Date(sale1.salesDate).getMinutes()< new Date(sale2.salesDate).getMinutes()){
+  return -1;
+}
+  }
+  
+    return 0;
+  })
+ console.log(this.tabledata);
+ this.tabledata.reverse();
+ if(this.tabledata.length>8){
+   this.tabledata.slice(0,7);
+ }
+  var dat = new this.google.visualization.DataTable();
+    dat.addColumn('string', 'Company');
+    dat.addColumn('string', 'Location');
+    dat.addColumn('string', 'Date');
+    dat.addColumn('number', 'Sales Val');
+    this.tabledata.map(sale=>{
+      console.log(this.getcompanyname(sale.companyID))
+      dat.addRows([
+        [this.getcompanyname(sale.companyID), this.getlocationname(sale.companyID,sale.locationID),formatDate(sale.salesDate,'HH:mm','en'),sale.totalAmount],
+       
+        
+      ]);
+    })
+    
 
     var table = new this.google.visualization.Table(document.getElementById('table'));
 
   
-    table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
+    table.draw(dat, {showRowNumber: true, width: '100%', height: '100%'});
+
+     }
+      },error=>{
+
+      })
+    })
+
+    
   }
+
+  getcompanyname(compid):String{
+    var compname=(this.companys.find(comp=> comp.id===compid)).name;
+    return compname;
+
+  }
+  getlocationname(compid,lid):String{
+   var lname= this.companys.find(comp=>comp.id===compid).locations.find(l=>l.id===lid).name;
+   return lname;
+
+  }
+
+  
 
 }
 
