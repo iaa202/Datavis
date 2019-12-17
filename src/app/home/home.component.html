@@ -2,6 +2,14 @@
     <div class="card ml-2 mr-2 mt-2">
       <h6 class="card-header with-elements">
         <div class="card-header-title"><i *ngIf="storeinf" class="fas fa-arrow-left" (click)="resetmap()"></i> {{mapheader}}</div>
+        <div *ngIf="!storeinf" class="form-group " style=" width:200px;float:right;font-size:12px; padding:0">
+          <ng-select [items]="companys"
+          bindLabel="name"
+          placeholder="Select Item" 
+          (change)=onsearch()
+          [(ngModel)]=searchterm>
+         </ng-select>
+       </div>
       </h6>
       <div class="row">
         <div  [ngClass]="{'col-md-12':!storeinf,'col-md-4':storeinf}">

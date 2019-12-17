@@ -7,7 +7,8 @@ import { HomeComponent } from './home/home.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MainComponent } from './main/main.component';
 import { SideinfoComponent } from './sideinfo/sideinfo.component';
-
+import { NgSelectModule } from '@ng-select/ng-select';
+import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     AppComponent,
@@ -19,7 +20,9 @@ import { SideinfoComponent } from './sideinfo/sideinfo.component';
     BrowserModule,
     AppRoutingModule,
     NgbModule,
-    HttpClientModule
+    HttpClientModule,
+    NgSelectModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -7,9 +7,7 @@ import {Geores} from '../Models/geocoderes';
 import { Country } from '../Models/country';
 import { Report } from '../Models/report';
 import * as numeral from 'numeral';
-import { VirtualTimeScheduler } from 'rxjs';
 import { Saleshistory } from '../Models/saleshistory';
-import { SideinfoComponent } from '../sideinfo/sideinfo.component';
 declare var MarkerClusterer;
 
 
@@ -22,8 +20,11 @@ export class HomeComponent implements  AfterViewInit, OnInit {
   today:Date=new Date();
   tod=Date.now();
   tod2=Date.now();
+  tod3=Date.now();
   dayweek=1;
+  loading=true;
   day;
+  day2;
   guagedata=0;
   map: google.maps.Map;
   companys:Company[];
@@ -47,6 +48,8 @@ compvalsales=0;
 piedata:Report[]=[]
 tabledata:Saleshistory[]=[];
 bardata=[];
+searchterm:Company;
+combodata=[];
 
 
 
@@ -68,6 +71,7 @@ bardata=[];
       this.companys=<Company[]>res
       this.loadmap();
       this.drawdonut();
+      this.day2=this.today.getDay();
       this.drawcombo();
       this.drawtable();
      
@@ -186,7 +190,6 @@ drawbar(comp:Company) {
  var day = this.getday(this.day);
  console.log(day);
   this.customerservice.getsalesvolval2(comp.id,formatDate(this.tod2,'dd-MM-yyyy','en'),formatDate(this.tod2,'dd-MM-yyyy','en')).subscribe(async data=>{
-//   // this.bardata.({name:day,value:this.calculatetotal(<Report[]>data)});
 console.log(data);
    this.bardata.push(
     [day,this.calculatetotal(<Report[]>data)]
@@ -226,6 +229,57 @@ if(this.bardata.length===7){
   
 }
 
+
+drawcombo(){
+
+  if(this.day2===0){
+    this.day2=7;
+  }
+ var day = this.getday(this.day2);
+ console.log(day);
+ var count =0;
+ var sum =0;
+ var sumvol=0;
+ this.companys.map(comp=>{
+   this.customerservice.getsalesvolval2(comp.id,formatDate(this.tod3,'dd-MM-yyyy','en'),formatDate(this.tod3,'dd-MM-yyyy','en')).subscribe(res=>{
+     count=count+1;
+     sum = sum+ this.calculatetotal(<Report[]>res)
+     sumvol=sumvol+this.calculatetotal2(<Report[]>res)
+     if(count===this.companys.length){
+      this.combodata.push([day,sum,sumvol])
+      if(this.combodata.length===7){
+        var combochart= this.google.visualization.arrayToDataTable([
+          ['Sales', 'Value','Vol'],
+            this.combodata[0],
+            this.combodata[1],
+            this.combodata[2],
+            this.combodata[3],
+            this.combodata[4],
+            this.combodata[5],
+            this.combodata[6]
+        ]);
+        var options = {
+          title : 'Weekly Sales Volume and Value',
+          vAxis: {title: 'Sales'},
+          hAxis: {title: 'Day'},
+          seriesType: 'bars',
+          series: {1: {type: 'line'}}  
+                 };
+      
+        var chart = new this.google.visualization.ComboChart(document.getElementById('combo'));
+        chart.draw(combochart, options);
+      }else{
+        this.day2=this.day2-1;
+        this.tod3=this.tod3-86400000;
+        this.drawcombo();
+      }
+     }
+   })
+ })
+}
+
+
+
 getday(day:number):string{
   if(day===1){
     return "Mon"
@@ -248,6 +302,11 @@ getday(day:number):string{
   data.map((d)=>{total=total+d.val})
   return total;
   }
+  calculatetotal2(data:Report[]){
+    var total=0;
+    data.map((d)=>{total=total+d.vol})
+    return total;
+    }
 
 
 
@@ -325,7 +384,7 @@ getday(day:number):string{
 
   showcomp(data:Company){
     
-    this.mapheader=data.name;
+    this.mapheader=data.name + " (" + data.email +", " + data.phoneNo + ")";
     this.comploc=data.locations.length;
     this.customerservice.getusers(data.id).subscribe(res=>{
       this.compusers=(<Company[]>res).length;
@@ -388,32 +447,14 @@ getday(day:number):string{
     chart.draw(data, options);
   }
 
-  drawcombo(){
-    var data = this.google.visualization.arrayToDataTable([
-      ['Day', 'SalesVol', 'SalesVal'],
-      ['Mon',  50,      1000,                       ],
-      ['Tue',  200,      2000,                      ],
-      ['Wed',  120,      5400,                      ],
-      ['Thurs',  0,      0,                       ],
-      ['Frid',  500,      1000,                    ],
-      ['Sat',  300,      5400,                   ],
-      ['Sun',  100,      500,                     ],
-    ]);
 
-    var options = {
-      title : 'Weekly Sales Volume and Value',
-      vAxis: {title: 'Sales'},
-      hAxis: {title: 'Day'},
-      seriesType: 'bars',
-      series: {1: {type: 'line'}}        };
 
-    var chart = new this.google.visualization.ComboChart(document.getElementById('combo'));
-    chart.draw(data, options);
-  }
+  
+
+
 
 
   drawtable(){
-
     var count=0;
     this.companys.map(comp=>{
       this.customerservice.getcurrentsales(comp.id).subscribe(data=>{
@@ -427,7 +468,7 @@ getday(day:number):string{
   this.tabledata=this.tabledata.sort((sale1,sale2)=>{
     var time =new Date(sale1.salesDate).getHours();
     var time2= new Date(sale2.salesDate).getHours();
-    console.log(time,time2)
+
   if(time<time2){
     return -1;
   }else if(time==time2){
@@ -438,10 +479,9 @@ if(new Date(sale1.salesDate).getMinutes()< new Date(sale2.salesDate).getMinutes(
   
     return 0;
   })
- console.log(this.tabledata);
  this.tabledata.reverse();
- if(this.tabledata.length>8){
-   this.tabledata.slice(0,7);
+ if(this.tabledata.length>10){
+   this.tabledata=this.tabledata.slice(0,9);
  }
   var dat = new this.google.visualization.DataTable();
     dat.addColumn('string', 'Company');
@@ -449,7 +489,7 @@ if(new Date(sale1.salesDate).getMinutes()< new Date(sale2.salesDate).getMinutes(
     dat.addColumn('string', 'Date');
     dat.addColumn('number', 'Sales Val');
     this.tabledata.map(sale=>{
-      console.log(this.getcompanyname(sale.companyID))
+     
       dat.addRows([
         [this.getcompanyname(sale.companyID), this.getlocationname(sale.companyID,sale.locationID),formatDate(sale.salesDate,'HH:mm','en'),sale.totalAmount],
        
@@ -481,6 +521,24 @@ if(new Date(sale1.salesDate).getMinutes()< new Date(sale2.salesDate).getMinutes(
    var lname= this.companys.find(comp=>comp.id===compid).locations.find(l=>l.id===lid).name;
    return lname;
 
+  }
+
+  onsearch(){
+    console.log(this.searchterm);
+    this.storeinf=true;
+    this.drawChart(this.searchterm);
+    this.showcomp(this.searchterm);
+    this.markerlist.map(mark=>{
+      if(!(<String>mark.title).includes(this.searchterm.name)){
+        mark.setMap(null);
+      }else{
+      this.map.setCenter(mark.position);
+     mark.setIcon("http://maps.google.com/mapfiles/ms/icons/blue-dot.png");
+      }
+    })
+   
+    this.map.setZoom(12);
+    this.searchterm=null;
   }
 
   
